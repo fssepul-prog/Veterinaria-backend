@@ -1,43 +1,57 @@
 package cl.duoc.veterinaria_san_marcos.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Table(name = "cita")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "citas")
+@Getter
+@Setter
 public class Cita {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable = false, length = 80)
-    private String mascota;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(length = 50)
-    private String especie;
+  @NotBlank
+  @Column(nullable = false)
+  private String mascota;
 
-    @Column(nullable = false, length = 100)
-    private String dueno;
+  @NotBlank
+  @Column(nullable = false)
+  private String especie;
 
-    @Column(length = 120)
-    private String email;
+  private String dueno;
 
-    @Column(length = 30)
-    private String telefono;
+  @Column(nullable = false)
+  private String correoCliente;
 
-    @Column(nullable = false, length = 120)
-    private String servicio;
+  private String telefono;
 
-    @Column(length = 30)
-    private String fecha;
+  @NotNull
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "servicio_id")
+  private Servicio servicio;
 
-    @Column(nullable = false, length = 30)
-    private String estado = "Pendiente";
+  @NotNull
+  @FutureOrPresent
+  @Column(nullable = false)
+  private LocalDate fecha;
 
-    @Column(length = 500)
-    private String mensaje;
+  @NotNull
+  @JsonFormat(pattern = "HH:mm")
+  @Column(nullable = false)
+  private LocalTime hora;
+
+  @Column(length = 500)
+  private String observaciones;
+
+  // Pendiente, Confirmada, Reagendada o Cancelada
+  @Column(nullable = false)
+  private String estado;
 }
