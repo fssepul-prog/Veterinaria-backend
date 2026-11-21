@@ -24,8 +24,8 @@ public class SecurityConfig {
         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
         // Sin esta regla, un 403 se reenvía a /error y termina como 401
         .requestMatchers("/error").permitAll()
-        // Servicios: todos los autenticados leen; solo ADMIN modifica
-        .requestMatchers(HttpMethod.GET, "/api/v1/servicios/**").authenticated()
+        // Servicios: el catálogo es público (se ve sin cuenta); solo ADMIN modifica
+        .requestMatchers(HttpMethod.GET, "/api/v1/servicios/**").permitAll()
         .requestMatchers("/api/v1/servicios/**").hasRole("ADMIN")
         // Citas: el dueño solicita y ve las suyas; el personal las gestiona
         .requestMatchers(HttpMethod.GET, "/api/v1/citas/mias").hasRole("CLIENTE")
