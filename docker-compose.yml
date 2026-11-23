@@ -1,0 +1,59 @@
+services:
+  db-auth:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: veterinaria_auth
+      MYSQL_ROOT_PASSWORD: ${AUTH_DB_PASSWORD}
+    volumes:
+      - datos-auth:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  db-clinica:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: veterinaria_san_marcos
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - datos-clinica:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  auth:
+    build: ./veterinaria-auth
+    depends_on:
+      db-auth:
+        condition: service_healthy
+    environment:
+      AUTH_DB_URL: jdbc:mysql://db-auth:3306/veterinaria_auth?useSSL=false&allowPublicKeyRetrieval=true
+      AUTH_DB_USER: root
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      APP_CORS_ALLOWED_ORIGIN: ${APP_CORS_ALLOWED_ORIGIN}
+    ports:
+      - "127.0.0.1:8081:8081"
+    restart: unless-stopped
+
+  clinica:
+    build: .
+    depends_on:
+      db-clinica:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://db-clinica:3306/veterinaria_san_marcos?useSSL=false&allowPublicKeyRetrieval=true
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      APP_CORS_ALLOWED_ORIGIN: ${APP_CORS_ALLOWED_ORIGIN}
+    ports:
+      - "127.0.0.1:8082:8082"
+    restart: unless-stopped
+
+volumes:
+  datos-auth:
+  datos-clinica:
